@@ -57,6 +57,11 @@ revoke all on public.messages from anon, authenticated;
 grant insert (listing_id, buyer_name, buyer_email, body)
   on public.messages to anon, authenticated;
 
+-- The server-only service role (used by /api/messages to email sellers)
+-- skips RLS, but still needs normal table privileges. Projects created
+-- without "auto-grant API access" don't give it any, so grant explicitly.
+grant select on public.listings, public.messages to service_role;
+
 -- ============================================================
 -- 3. Row Level Security
 -- With RLS on, everything is denied unless a policy allows it.
