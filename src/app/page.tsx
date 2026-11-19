@@ -1,95 +1,71 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import Link from "next/link";
+import CategoryTabs from "@/components/CategoryTabs";
+import Hero from "@/components/Hero";
+import ListingGrid from "@/components/ListingGrid";
+import SearchBar from "@/components/SearchBar";
+import Stats from "@/components/Stats";
+import { categoryLabel, isCategory } from "@/lib/constants";
+import { cleanSearch, countListings, fetchListings, type Listing } from "@/lib/listings";
 
-export default function Home() {
+// Always render on request so new listings show up immediately.
+export const dynamic = "force-dynamic";
+
+type HomeProps = {
+  searchParams: Promise<{ category?: string; q?: string }>;
+};
+
+export default async function Home({ searchParams }: HomeProps) {
+  const params = await searchParams;
+  const category = isCategory(params.category) ? params.category : undefined;
+  const search = cleanSearch(params.q);
+
+  // Load the listings and the total count in parallel.
+  // Errors are caught so the page still renders with a friendly message.
+  let listings: Listing[] = [];
+  let total: number | null = null;
+  let loadError = false;
+  try {
+    [listings, total] = await Promise.all([fetchListings({ category, search }), countListings()]);
+  } catch (err) {
+    console.error("Could not load listings", err);
+    loadError = true;
+  }
+
+  const heading = search
+    ? `Results for “${search}”`
+    : category
+      ? categoryLabel(category)
+      : "Latest Listings";
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <>
+      <Hero />
+      <Stats listingCount={total} />
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+      <section id="listings" className="section" aria-labelledby="listings-heading">
+        <div className="section__header">
+          <h2 id="listings-heading" className="section__title">
+            {heading}
+          </h2>
+          {(search || category) && (
+            <Link href="/#listings" className="section__link" scroll={false}>
+              Clear filters
+            </Link>
+          )}
         </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+        <SearchBar search={search} category={category} />
+        <CategoryTabs active={category} search={search} />
+
+        {loadError ? (
+          <div className="state state--error" role="alert">
+            <p className="state__title">We couldn&apos;t load the listings.</p>
+            <p>Please refresh the page or try again in a moment.</p>
+          </div>
+        ) : (
+          <ListingGrid listings={listings} filtered={Boolean(search || category)} />
+        )}
+      </section>
+    </>
   );
 }
