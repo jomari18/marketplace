@@ -5,6 +5,28 @@ A mini buy-and-sell marketplace. Anyone can list an item with a photo, browse li
 **Stack:** Next.js 15 (App Router, TypeScript) · Supabase (Postgres + Storage) · Resend (email) · Vercel
 **Design:** based on the Figma "Preloved Secondhand Marketplace" UI kit (light mode).
 
+- **Live:** https://marketplace-sand-rho.vercel.app
+- **Code:** https://github.com/jomari18/marketplace
+- **Previous test:** Test 2 "My Wall" (https://github.com/jomari18/my-wall), whose patterns this reuses
+
+## Current status
+
+All required features and both bonuses are deployed and were tested on the live site:
+
+| Feature | Status |
+| --- | --- |
+| Create listing (photo upload + insert) | ✅ live |
+| Home grid + category tabs | ✅ live |
+| Listing detail page | ✅ live |
+| Message Seller (saved in Supabase) | ✅ live |
+| Bonus: keyword search | ✅ live |
+| Bonus: seller email via Resend (server route) | ✅ live, delivered |
+| RLS, column grants, CHECK constraints | ✅ verified with direct API calls |
+
+Vercel has all four env vars set (see the table below). Pushing to `main` redeploys automatically.
+
+**Known limit:** Resend's free test sender only delivers to the Resend account owner's email. Messages to other sellers are still saved, but no email arrives until a domain is verified in Resend and `EMAIL_FROM` is set in Vercel.
+
 ## Features
 
 - **Create listing** (`/listings/new`): photo, title, description, price, category, seller email
@@ -60,3 +82,9 @@ supabase/migrations/          tables, CHECKs, column grants, RLS, storage bucket
 - **CHECK constraints**: title 3–80 chars, description 10–2000, price 0–10,000,000, category in a fixed list, emails must look like `x@y.tld`, photo URL must point at our own bucket.
 - **Photos**: public-read bucket, 5 MB limit, image MIME types only, anon can upload but not list, replace or delete. File names are random UUIDs.
 - **Search input is sanitized** before it goes into the PostgREST filter, so characters like `, ( ) %` can't change the query.
+
+## Lessons learned
+
+- **Grants and RLS are separate layers.** The service role bypasses RLS, but on a project created without "auto-grant API access" it had no table privileges, so the email lookup failed with `42501 permission denied`. The fix (`grant select ... to service_role`) is in the migration.
+- **Never `select=*` on `listings` with the anon key.** It includes `seller_email`, which anon can't read, so the whole query fails. Always list the public columns (see `PUBLIC_LISTING_COLUMNS`).
+- **Message insert doesn't call `.select()`.** Anon can't read messages, so asking for the row back would fail.
