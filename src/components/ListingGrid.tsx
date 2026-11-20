@@ -5,10 +5,11 @@ import type { Listing } from "@/lib/listings";
 type ListingGridProps = {
   listings: Listing[];
   filtered: boolean;
+  purchasable: Set<string>; // ids of listings that can be bought with Stripe
 };
 
 /** The product grid, or an empty state when there is nothing to show. */
-export default function ListingGrid({ listings, filtered }: ListingGridProps) {
+export default function ListingGrid({ listings, filtered, purchasable }: ListingGridProps) {
   if (listings.length === 0) {
     return (
       <div className="state">
@@ -25,7 +26,7 @@ export default function ListingGrid({ listings, filtered }: ListingGridProps) {
   return (
     <ul className="grid" aria-label={`${listings.length} listings`}>
       {listings.map((listing) => (
-        <ListingCard key={listing.id} listing={listing} now={now} />
+        <ListingCard key={listing.id} listing={listing} now={now} canBuy={purchasable.has(listing.id)} />
       ))}
     </ul>
   );

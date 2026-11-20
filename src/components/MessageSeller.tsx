@@ -74,7 +74,7 @@ export default function MessageSeller({ listingId, listingTitle }: MessageSeller
 
   if (status === "closed") {
     return (
-      <button type="button" className="button button--block" onClick={open} aria-controls="message-form">
+      <button type="button" className="button button--block button--ghost" onClick={open} aria-controls="message-form">
         Message Seller
       </button>
     );

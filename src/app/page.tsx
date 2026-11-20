@@ -6,6 +6,7 @@ import SearchBar from "@/components/SearchBar";
 import Stats from "@/components/Stats";
 import { categoryLabel, isCategory } from "@/lib/constants";
 import { cleanSearch, countListings, fetchListings, type Listing } from "@/lib/listings";
+import { purchasableListingIds } from "@/lib/payments";
 
 // Always render on request so new listings show up immediately.
 export const dynamic = "force-dynamic";
@@ -29,6 +30,15 @@ export default async function Home({ searchParams }: HomeProps) {
   } catch (err) {
     console.error("Could not load listings", err);
     loadError = true;
+  }
+
+  // Which of these can be bought with Stripe? Worked out on the server,
+  // because seller emails and the sellers table are private.
+  let purchasable = new Set<string>();
+  try {
+    purchasable = await purchasableListingIds(listings.map((l) => l.id));
+  } catch (err) {
+    console.error("Could not check which listings are purchasable", err);
   }
 
   const heading = search
@@ -63,7 +73,7 @@ export default async function Home({ searchParams }: HomeProps) {
             <p>Please refresh the page or try again in a moment.</p>
           </div>
         ) : (
-          <ListingGrid listings={listings} filtered={Boolean(search || category)} />
+          <ListingGrid listings={listings} filtered={Boolean(search || category)} purchasable={purchasable} />
         )}
       </section>
     </>

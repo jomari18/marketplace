@@ -13,12 +13,14 @@ export type Listing = {
   price: number;
   category: CategorySlug;
   image_url: string;
+  status: "available" | "sold"; // Test 4: set to "sold" by the Stripe webhook
   created_at: string;
 };
 
 // Always list columns explicitly. "select=*" would include seller_email,
 // which the anon role has no permission to read, so the query would fail.
-export const PUBLIC_LISTING_COLUMNS = "id, title, description, price, category, image_url, created_at";
+export const PUBLIC_LISTING_COLUMNS =
+  "id, title, description, price, category, image_url, status, created_at";
 
 /** Make user search text safe to put inside a PostgREST filter. */
 export function cleanSearch(raw: string | undefined): string {

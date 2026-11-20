@@ -10,6 +10,16 @@ export function formatPrice(value: number): string {
   return peso.format(value);
 }
 
+/** Stripe amounts are in the smallest unit: 250000 + "php" -> "₱2,500". */
+export function formatMinorAmount(amount: number, currency: string): string {
+  return new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: currency.toUpperCase(),
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount / 100);
+}
+
 /** "Listed just now", "Listed 3 days ago", ... */
 export function formatListedAgo(iso: string, now: number = Date.now()): string {
   const seconds = Math.max(0, Math.floor((now - new Date(iso).getTime()) / 1000));
