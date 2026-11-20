@@ -31,6 +31,9 @@ export const LIMITS = {
   emailMax: 254,
 } as const;
 
+// Currency for prices AND Stripe charges. Listings are priced in pesos.
+export const CURRENCY = "php";
+
 export const PHOTO_BUCKET = "listing-photos";
 export const MAX_PHOTO_BYTES = 5 * 1024 * 1024; // 5 MB
 export const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
