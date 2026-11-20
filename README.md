@@ -20,6 +20,8 @@ A mini buy-and-sell marketplace. Anyone can list an item with a photo, browse li
 | Test 4 Buy Now → Stripe Checkout (direct charge, 10% fee) | ✅ live (₱2,300 test sale, ₱230 fee) |
 | Test 4 webhook → order saved + listing Sold | ✅ live: signed `checkout.session.completed` → 200, order saved, listing Sold (delivered via Stripe CLI, see below) |
 
+**Demo data (Nov 21):** old test listings and orders were cleared. The live site has 3 listings (Boston Bag Tan, Clothes, Pink Clothes) from the onboarded test seller `seller.stripe.test@example.com`, so all of them show **Buy Now**. Buy one with card `4242 4242 4242 4242`.
+
 **Known limits**
 - Resend's free test sender only delivers to the Resend account owner's email. Messages are always saved.
 - **Webhook endpoint limit:** the shared sandbox already has 16 test webhook endpoints (Stripe's maximum), all from other applicants, so `scripts/create-webhook.mjs` fails with "maximum of 16 test webhook endpoints". We did not delete anyone else's endpoint. Instead the live webhook was tested with the Stripe CLI forwarding real Connect events to the production URL (see "Deploy Test 4", step 4b). Once a slot is free, run the script as written.
