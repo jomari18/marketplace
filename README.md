@@ -16,12 +16,13 @@ A mini buy-and-sell marketplace. Anyone can list an item with a photo, browse li
 | **Test 3** create listing, grid + tabs, detail, Message Seller | ✅ live |
 | Test 3 bonus: keyword search, seller email via Resend | ✅ live |
 | Test 3 security: RLS, column grants, CHECK constraints | ✅ verified with direct API calls |
-| **Test 4** seller onboarding (Connect with Stripe) | ✅ tested locally, awaiting deploy |
-| Test 4 Buy Now → Stripe Checkout (direct charge, 10% fee) | ✅ tested locally, awaiting deploy |
-| Test 4 webhook → order saved + listing Sold | ⏳ needs the production webhook (see "Deploy Test 4") |
+| **Test 4** seller onboarding (Connect with Stripe) | ✅ live |
+| Test 4 Buy Now → Stripe Checkout (direct charge, 10% fee) | ✅ live (₱2,300 test sale, ₱230 fee) |
+| Test 4 webhook → order saved + listing Sold | ✅ live: signed `checkout.session.completed` → 200, order saved, listing Sold (delivered via Stripe CLI, see below) |
 
 **Known limits**
 - Resend's free test sender only delivers to the Resend account owner's email. Messages are always saved.
+- **Webhook endpoint limit:** the shared sandbox already has 16 test webhook endpoints (Stripe's maximum), all from other applicants, so `scripts/create-webhook.mjs` fails with "maximum of 16 test webhook endpoints". We did not delete anyone else's endpoint. Instead the live webhook was tested with the Stripe CLI forwarding real Connect events to the production URL (see "Deploy Test 4", step 4b). Once a slot is free, run the script as written.
 - No login (as the test asks): a seller is identified by the email on their listings. Anyone who types a seller's email on the Connect page could start onboarding for it. A real app would verify the email first.
 
 ## Features
@@ -41,6 +42,9 @@ A mini buy-and-sell marketplace. Anyone can list an item with a photo, browse li
 2. **Add env vars in Vercel** (Settings → Environment Variables): `STRIPE_SECRET_KEY` (secret) and `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`.
 3. **Deploy** (push to `main`, or Redeploy).
 4. **Register the webhook**: `node --env-file=.env.local scripts/create-webhook.mjs`. It prints `whsec_...` **once**; copy it.
+   - **4b. If it fails with "maximum of 16 test webhook endpoints"** (shared sandbox full): forward events with the Stripe CLI instead, which prints its own `whsec_`:
+     `stripe listen --api-key YOUR_sk_test --events checkout.session.completed,account.updated --forward-connect-to https://marketplace-sand-rho.vercel.app/api/stripe/webhook`
+     (PowerShell: don't type `<...>` placeholders, `<` is an operator.) It only delivers while the command runs.
 5. **Add `STRIPE_WEBHOOK_SECRET`** (the `whsec_...`) in Vercel as a secret.
 6. **Redeploy** so the new secret is used.
 7. **Onboard a test seller** at `/sell/connect` (use Stripe's test buttons: test phone, code `000000`, test bank account).
@@ -134,4 +138,6 @@ supabase/migrations/               Test 3 + Test 4 SQL
 - **Never `select=*` on `listings` with the anon key** (it includes `seller_email`). Use `PUBLIC_LISTING_COLUMNS`.
 - **Direct charges live on the connected account**, so retrieving a Checkout Session needs `{ stripeAccount }`, and the webhook must be a **Connect** endpoint (`connect: true`).
 - **Standard accounts asked the seller for a password and 2FA**; switching to Express-style accounts made test onboarding a few clicks. The sandbox also rejects platform-owned losses on v1 accounts, so `losses.payments = "stripe"`.
+- **Vercel env vars only apply to new deployments.** After adding or changing one, Redeploy, or the running site still sees it as unset (`STRIPE_SECRET_KEY is not set` in the logs).
+- **Shared sandboxes have shared limits.** 16 webhook endpoints max per account; the Stripe CLI can forward to a deployed URL as a workaround.
 - **Stripe amounts are integers in the smallest unit.** Use `Math.round(price * 100)`, never send floats.
