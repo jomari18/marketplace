@@ -11,6 +11,7 @@ export default function SiteHeader() {
 
       <nav aria-label="Main" className="site-nav">
         <Link href="/#listings">Browse</Link>
+        <Link href="/sell/connect">Get paid</Link>
         <Link href="/listings/new" className="site-nav__chip">
           SELL AN ITEM
         </Link>

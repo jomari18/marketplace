@@ -1057,3 +1057,169 @@ select.input {
     line-height: 44px;
   }
 }
+
+/* ============================================================
+   Test 4: Stripe Connect (same tokens and components as above)
+   ============================================================ */
+.page-intro__note {
+  margin-top: 12px !important;
+}
+.page-intro__note a {
+  color: var(--fg);
+  font-weight: 500;
+}
+
+/* Connect with Stripe page */
+.connect {
+  max-width: 560px;
+}
+.steps {
+  display: grid;
+  gap: 16px;
+  margin: 0 0 32px;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+.steps li {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  column-gap: 16px;
+  row-gap: 2px;
+  counter-increment: step;
+}
+.steps li::before {
+  content: counter(step);
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  background: var(--fg-strong);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+}
+.steps strong {
+  font-weight: 500;
+}
+.steps .muted {
+  font-size: 14px;
+}
+.connect-form {
+  display: grid;
+  gap: 20px;
+  padding: 24px;
+  border: 1px solid var(--divider);
+  background: var(--bg-soft);
+}
+
+/* Result pages: onboarding return, order success, checkout cancel */
+.result {
+  max-width: 640px;
+  padding: 40px;
+  border: 1px solid var(--divider);
+  background: var(--bg-soft);
+}
+.result--success {
+  border-top: 4px solid var(--fg-strong);
+}
+.result .page-title {
+  font-size: 40px;
+  line-height: 48px;
+}
+.result__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+.order-summary {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 20px;
+  align-items: center;
+  margin-top: 28px;
+  padding: 16px;
+  border: 1px solid var(--divider);
+  background: #fff;
+}
+.order-summary__media {
+  position: relative;
+  aspect-ratio: 302 / 386;
+  overflow: hidden;
+  background: var(--bg-soft);
+}
+.order-summary__title {
+  margin: 4px 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+.tag--small {
+  margin-top: 8px;
+  padding: 4px 8px;
+  font-size: 12px;
+  line-height: 14px;
+}
+@media (max-width: 599px) {
+  .result {
+    padding: 24px;
+  }
+  .result .page-title {
+    font-size: 30px;
+    line-height: 38px;
+  }
+  .result__actions .button {
+    width: 100%;
+  }
+  .order-summary {
+    grid-template-columns: 88px 1fr;
+  }
+}
+
+/* Buy Now + Sold on the listing page */
+.buy {
+  display: grid;
+  gap: 8px;
+}
+.button--buy {
+  font-size: 18px;
+}
+.buy__hint {
+  text-align: center;
+}
+.buy .notice {
+  margin: 0;
+}
+.sold-panel {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--divider);
+  background: var(--bg-soft);
+}
+.sold-panel p {
+  margin: 0;
+  color: var(--muted);
+}
+
+/* Cards */
+.card__buy {
+  align-self: flex-start;
+  padding: 4px 8px;
+  border: 1px solid var(--fg-strong);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 14px;
+  text-transform: uppercase;
+}
+.card--sold .card__image {
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+.card--sold .card__price {
+  color: var(--muted);
+  text-decoration: line-through;
+}

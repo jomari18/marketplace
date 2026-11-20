@@ -16,6 +16,9 @@ export default function NewListingPage() {
           Sell an item
         </h1>
         <p className="muted">Add a photo and a few details. Your listing goes live right away, no account needed.</p>
+        <p className="muted page-intro__note">
+          Want buyers to pay online? <Link href="/sell/connect">Connect with Stripe</Link> using the same email.
+        </p>
       </div>
       <CreateListingForm />
     </section>
